@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
 // @match        https://wplace.live/*
+// @updateURL    https://github.com/SimpleBrush/ZeroWidthReplacer/raw/main/zero-width-replacer.user.js
+// @downloadURL  https://github.com/SimpleBrush/ZeroWidthReplacer/raw/main/zero-width-replacer.user.js
 // @grant        none
 // ==/UserScript==
 
@@ -41,7 +43,7 @@ For more information, please refer to <https://unlicense.org>
 
     const marker = "🚨";
 
-    const zwcRegex = /[\u200B\u200C\u200D\uFEFF]/g;
+    const zwcRegex = /[\u200B\u200C\u200D\uFEFF\u2060\u00AD\u180E\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
 
     function replaceInNode(node) {
         if (node.nodeType === Node.TEXT_NODE) {
