@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.2.1
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
@@ -86,12 +86,22 @@ For more information, please refer to <https://unlicense.org>
   // ===== Panel =====
   const panel = document.createElement('div');
   panel.style.position = 'fixed';
-  panel.style.left = localStorage.getItem('zwr-panel-left') || 'auto';
-  panel.style.top = localStorage.getItem('zwr-panel-top') || '10px';
-  if (panel.style.left === 'auto' && (panel.style.top === 'auto' || panel.style.top === '')) {
+
+  const savedLeft = localStorage.getItem('zwr-panel-left');
+  const savedTop = localStorage.getItem('zwr-panel-top');
+
+  if (savedLeft && savedTop) {
+    panel.style.left = savedLeft;
+    panel.style.top = savedTop;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  } else {
+    panel.style.left = 'auto';
+    panel.style.bottom = 'auto';
     panel.style.right = '10px';
     panel.style.top = '10px';
   }
+
   panel.style.background = 'rgba(30,30,30,0.85)';
   panel.style.color = '#fff';
   panel.style.border = '1px solid #555';
