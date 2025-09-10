@@ -1,13 +1,14 @@
 # Zero Width Replacer
 
-Tampermonkey userscript that replaces zero-width characters (ZWSP, ZWNJ, ZWJ, BOM) with a visible emoji 🚨.  
+Tampermonkey userscript that replaces invisible and zero-width characters (ZWSP, ZWNJ, ZWJ, BOM, BiDi controls, etc.) with a visible, selectable emoji.  
 
 ---
 
 ## ✨ Features
-- Detects and replaces hidden characters (`\u200B`, `\u200C`, `\u200D`, `\uFEFF`)
-- Shows 🚨 emoji instead, so invisible text becomes noticeable
-- Runs automatically and in real time
+- Detects and replaces a wide range of hidden characters, including zero-width spaces (`\u200B`, `\u200C`, `\u200D`, `\uFEFF`) and BiDi control characters (`\u200E`, `\u200F`, `\u202A–\u202E`, `\u2066–\u2069`)
+- Shows a selectable emoji marker instead, so invisible text becomes noticeable
+- Provides a draggable control panel with position persistence
+- Allows choosing the replacement emoji from predefined options
 
 ---
 
