@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.2.1
+// @version      1.3
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
@@ -44,6 +44,10 @@ For more information, please refer to <https://unlicense.org>
   // ===== Config =====
   const choices = ["", "🚨", "❌", "⚠️", "␣"];
   let marker = localStorage.getItem("zwr-marker") ?? "🚨";
+
+  let highlightOn = localStorage.getItem("zwr-highlight-on") === "true";
+  let highlightColor = localStorage.getItem("zwr-highlight-color") || "yellow";
+
   const zwcRegex = /[\u200B\u200C\u200D\uFEFF\u2060\u00AD\u180E\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
 
   // ===== Replacement =====
@@ -64,6 +68,7 @@ For more information, please refer to <https://unlicense.org>
       });
       if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
       node.parentNode.replaceChild(frag, node);
+      applyHighlight();
     } else if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('zwr-marker')) {
       node.childNodes.forEach(replaceInNode);
     }
@@ -71,15 +76,21 @@ For more information, please refer to <https://unlicense.org>
 
   function applyReplacement() {
     document.querySelectorAll('.zwr-marker').forEach(s => { s.textContent = marker; });
+    applyHighlight();
+  }
+
+  function applyHighlight() {
+    document.querySelectorAll('.zwr-marker').forEach(span => {
+      if (span.parentElement) {
+        span.parentElement.style.backgroundColor = highlightOn ? highlightColor : "";
+      }
+    });
   }
 
   replaceInNode(document.body);
 
   const observer = new MutationObserver(muts => {
-    for (const m of muts) {
-      if (m.type === 'characterData') replaceInNode(m.target);
-      m.addedNodes.forEach(replaceInNode);
-    }
+    muts.forEach(m => m.addedNodes.forEach(replaceInNode));
   });
   observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
@@ -170,7 +181,6 @@ For more information, please refer to <https://unlicense.org>
   choiceContainer.style.border = '1px solid #555';
   choiceContainer.style.borderRadius = '4px';
   choiceContainer.style.boxShadow = '0 4px 10px rgba(0,0,0,0.4)';
-  choiceContainer.style.display = 'none';
   choiceContainer.style.gap = '10px';
   choiceContainer.style.flexDirection = 'column';
   previewBox.appendChild(choiceContainer);
@@ -218,11 +228,84 @@ For more information, please refer to <https://unlicense.org>
   }
   renderChoices();
 
+  // ===== Section: highlight =====
+  const highlightSection = document.createElement('div');
+  highlightSection.style.display = 'flex';
+  highlightSection.style.flexDirection = 'column';
+  highlightSection.style.gap = '6px';
+  choiceContainer.appendChild(highlightSection);
+
+  const highlightToggle = document.createElement('button');
+  highlightToggle.style.display = 'flex';
+  highlightToggle.style.alignItems = 'center';
+  highlightToggle.style.gap = '6px';
+  highlightToggle.style.fontSize = '16px';
+  highlightToggle.style.padding = '4px 8px';
+  highlightToggle.style.background = '#222';
+  highlightToggle.style.color = '#fff';
+  highlightToggle.style.border = '1px solid #555';
+  highlightToggle.style.borderRadius = '4px';
+  highlightToggle.style.cursor = 'pointer';
+
+  function renderHighlightToggle() {
+    highlightToggle.textContent = highlightOn ? '✅ Highlight' : '⬜ Highlight';
+  }
+  renderHighlightToggle();
+
+  highlightToggle.onclick = e => {
+    e.stopPropagation();
+    highlightOn = !highlightOn;
+    localStorage.setItem('zwr-highlight-on', highlightOn);
+    renderHighlightToggle();
+    applyHighlight();
+  };
+
+  highlightSection.appendChild(highlightToggle);
+
+  const palette = [
+    { color: 'yellow', emoji: '🟨' },
+    { color: 'lightgreen', emoji: '🟩' },
+    { color: 'lightblue', emoji: '🟦' },
+    { color: 'red', emoji: '🟥' }
+  ];
+
+  const paletteBox = document.createElement('div');
+  paletteBox.style.display = 'grid';
+  paletteBox.style.gridTemplateColumns = 'repeat(4, auto)';
+  paletteBox.style.gap = '4px';
+  highlightSection.appendChild(paletteBox);
+
+  function renderPalette() {
+    paletteBox.innerHTML = '';
+    palette.forEach(item => {
+      const btn = document.createElement('button');
+      btn.textContent = item.emoji;
+      btn.style.fontSize = '20px';
+      btn.style.width = '32px';
+      btn.style.height = '32px';
+      btn.style.lineHeight = '32px';
+      btn.style.border = '2px solid transparent';
+      btn.style.borderRadius = '4px';
+      btn.style.background = '#222';
+      if (item.color === highlightColor) {
+        btn.style.border = '2px solid deepskyblue';
+      }
+      btn.onclick = e => {
+        e.stopPropagation();
+        highlightColor = item.color;
+        localStorage.setItem('zwr-highlight-color', highlightColor);
+        applyHighlight();
+        renderPalette();
+      };
+      paletteBox.appendChild(btn);
+    });
+  }
+  renderPalette();
+
   // ===== Dropdown toggle =====
   previewBox.onclick = e => {
     e.stopPropagation();
-    const closed = choiceContainer.style.display === 'none';
-    if (closed) {
+    if (choiceContainer.style.display === 'none') {
       choiceContainer.style.display = 'flex';
       const pv = previewBox.getBoundingClientRect();
       const w = choiceContainer.offsetWidth;
@@ -317,4 +400,7 @@ For more information, please refer to <https://unlicense.org>
     localStorage.setItem('zwr-panel-left', panel.style.left);
     localStorage.setItem('zwr-panel-top', panel.style.top);
   });
+
+  // ===== Init highlight =====
+  applyHighlight();
 })();
