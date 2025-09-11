@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.3.2
+// @version      1.3.3
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
@@ -118,6 +118,7 @@ For more information, please refer to <https://unlicense.org>
     ALLIANCE_SELECTORS.forEach(sel => {
       document.querySelectorAll(sel).forEach(el => {
         if (hasVisibleText(el)) {
+          el.classList.add('alliance-tag');
           el.childNodes.forEach(replaceInNode);
         }
       });
@@ -135,6 +136,7 @@ For more information, please refer to <https://unlicense.org>
           ALLIANCE_SELECTORS.forEach(sel => {
             n.querySelectorAll(sel).forEach(e => {
               if (hasVisibleText(e)) {
+                e.classList.add('alliance-tag');
                 e.childNodes.forEach(replaceInNode);
                 touched = true;
               }
