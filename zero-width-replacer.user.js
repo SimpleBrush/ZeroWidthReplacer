@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.3.1
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
@@ -48,13 +48,13 @@ For more information, please refer to <https://unlicense.org>
   let highlightOn = localStorage.getItem("zwr-highlight-on") === "true";
   let highlightColor = localStorage.getItem("zwr-highlight-color") || "yellow";
 
-  const zwcRegex = /[\u200B\u200C\u200D\uFEFF\u2060\u00AD\u180E\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
+  const zwcRegex = /[\u0009\u200B\u200C\u200D\uFEFF\u2060\u00AD\u180E\u00A0\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
 
   // ===== Replacement =====
   function replaceInNode(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.nodeValue;
-      if (!zwcRegex.test(text)) return;
+      if (text.search(zwcRegex) === -1) return;
 
       const frag = document.createDocumentFragment();
       let i = 0;
@@ -68,7 +68,6 @@ For more information, please refer to <https://unlicense.org>
       });
       if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
       node.parentNode.replaceChild(frag, node);
-      applyHighlight();
     } else if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('zwr-marker')) {
       node.childNodes.forEach(replaceInNode);
     }
@@ -87,12 +86,48 @@ For more information, please refer to <https://unlicense.org>
     });
   }
 
-  replaceInNode(document.body);
+  // ===== Alliance targeting =====
+  const ALLIANCE_SELECTORS = [
+    "span.badge-sm.ml-0\\.5", // Badge
+    "td.h-14.max-sm\\:px-1 span" // Leaderboard
+  ];
+
+  function hasVisibleText(el) {
+    return !!(el.textContent && el.textContent.replace(/\s+/g, '').length);
+  }
+
+  function replaceAllianceText() {
+    ALLIANCE_SELECTORS.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        if (hasVisibleText(el)) {
+          el.childNodes.forEach(replaceInNode);
+        }
+      });
+    });
+    applyHighlight();
+  }
+
+  replaceAllianceText();
 
   const observer = new MutationObserver(muts => {
-    muts.forEach(m => m.addedNodes.forEach(replaceInNode));
+    let touched = false;
+    muts.forEach(m => {
+      m.addedNodes.forEach(n => {
+        if (n.nodeType === Node.ELEMENT_NODE) {
+          ALLIANCE_SELECTORS.forEach(sel => {
+            n.querySelectorAll(sel).forEach(e => {
+              if (hasVisibleText(e)) {
+                e.childNodes.forEach(replaceInNode);
+                touched = true;
+              }
+            });
+          });
+        }
+      });
+    });
+    if (touched) applyHighlight();
   });
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  observer.observe(document.body, { childList: true, subtree: true });
 
   // ===== Panel =====
   const panel = document.createElement('div');
@@ -400,7 +435,4 @@ For more information, please refer to <https://unlicense.org>
     localStorage.setItem('zwr-panel-left', panel.style.left);
     localStorage.setItem('zwr-panel-top', panel.style.top);
   });
-
-  // ===== Init highlight =====
-  applyHighlight();
 })();
