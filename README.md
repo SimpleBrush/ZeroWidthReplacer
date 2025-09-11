@@ -1,6 +1,6 @@
 # Zero Width Replacer
 
-Tampermonkey userscript that makes invisible and lookalike characters visible inside alliance tags,
+Tampermonkey userscript that highlights invisible and lookalike characters inside alliance tags,
 helping you spot impersonation tricks at a glance.
 
 ---
