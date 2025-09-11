@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zero Width Replacer
 // @namespace    http://tampermonkey.net/
-// @version      1.3.1
+// @version      1.3.2
 // @description  Replace zero-width characters with emojis in wplace.live
 // @author       SimpleBrush
 // @license      Unlicense
@@ -49,6 +49,24 @@ For more information, please refer to <https://unlicense.org>
   let highlightColor = localStorage.getItem("zwr-highlight-color") || "yellow";
 
   const zwcRegex = /[\u0009\u200B\u200C\u200D\uFEFF\u2060\u00AD\u180E\u00A0\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
+
+  // ===== Alliance Font Style =====
+
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap";
+  document.head.appendChild(link);
+
+  const styleAlliance = document.createElement("style");
+  styleAlliance.textContent = `
+  .alliance-tag {
+    font-family: "IBM Plex Mono", Geist, ui-sans-serif, system-ui, sans-serif !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.3px;
+    -webkit-text-stroke: 0.2px currentColor;
+  }
+  `;
+  document.head.appendChild(styleAlliance);
 
   // ===== Replacement =====
   function replaceInNode(node) {

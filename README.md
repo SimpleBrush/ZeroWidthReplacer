@@ -1,7 +1,7 @@
 # Zero Width Replacer
 
-Tampermonkey userscript that makes hidden characters visible inside alliance tags,  
-helping you spot tricks like zero-width spaces or non-breaking spaces at a glance.  
+Tampermonkey userscript that makes invisible and lookalike characters visible inside alliance tags,
+helping you spot impersonation tricks at a glance.
 
 ---
 
@@ -15,13 +15,14 @@ helping you spot tricks like zero-width spaces or non-breaking spaces at a glanc
 - Provides a draggable control panel with position persistence
 - Allows choosing the replacement emoji from preset options
 - Offers a highlight toggle with preset color options
+- Applies a monospace-based font style to alliance tags, making homoglyph-based impersonation easier to spot
 
 ---
 
 ## 🎯 Purpose
-This script is made specifically for [wplace.live](https://wplace.live/) to prevent impersonation.  
-Some users insert zero-width or confusing characters into alliance tags to mimic others.  
-By making these characters visible, such tricks become immediately noticeable.  
+This script is made specifically for [wplace.live](https://wplace.live/) to prevent impersonation.
+Some users insert zero-width, confusing, or lookalike characters into alliance tags to mimic others.
+By making these characters visible and applying a consistent font style, such tricks become immediately noticeable.
 The script focuses only on alliance tags, so normal text elsewhere on the page is unaffected.
 
 ---
@@ -33,5 +34,5 @@ The script focuses only on alliance tags, so normal text elsewhere on the page i
 ---
 
 ## 📜 License
-This project is released under [The Unlicense](LICENSE).  
+This project is released under [The Unlicense](LICENSE).
 Free and unencumbered software released into the public domain.
